@@ -56,3 +56,4 @@ offers smart caching by tracking entities in memory.
 - Inversion of control: Out of box support for DI with .NetCore improves coupling. IOC also helps with testability of the code.
 - Interface/ Service layer: Makes it easy to swap the service at run time
 - ViewModels: Controlling the data over wire and validations
+- GET /products & GET /products?name={name} merged into one API 

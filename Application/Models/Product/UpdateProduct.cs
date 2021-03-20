@@ -5,7 +5,6 @@ namespace Application.Models.Product
 {
     public class UpdateProduct
     {
-        public Guid Id { get; set; }
 
         [Required]
         [MinLength(5)]

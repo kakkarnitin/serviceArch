@@ -107,10 +107,6 @@ namespace API.Controllers
                     return NotFound();
                 }
 
-                if( product.Id != id)
-                {
-                    return BadRequest("Product id doesn't match with the given id");
-                }
 
                 var updatedProduct = await _productsService.UpdateProduct(id, updateProduct);
                 return Ok(updatedProduct);
@@ -234,10 +230,6 @@ namespace API.Controllers
                     return NotFound();
                 }
 
-                if (productOption.Id != optionId)
-                {
-                    return BadRequest("Product option id doesn't match with the given id");
-                }
 
                 var updatedProductOption = await _productOptionsService.UpdateProductOption(id, optionId, updateProductOption);
                 return Ok(updatedProductOption);
