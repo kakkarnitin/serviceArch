@@ -46,6 +46,7 @@ namespace API
 
             //Application services
             services.AddScoped<IProductsService, ProductService> ();
+            services.AddScoped<IProductOptionsService, ProductOptionService> ();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

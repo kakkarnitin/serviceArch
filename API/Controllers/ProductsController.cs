@@ -16,11 +16,13 @@ namespace API.Controllers
 
         private readonly ILogger<ProductsController> _logger;
         private readonly IProductsService _productsService;
+        private readonly IProductOptionsService _productOptionsService;
 
-        public ProductsController(ILogger<ProductsController> logger, IProductsService productsService)
+        public ProductsController(ILogger<ProductsController> logger, IProductsService productsService, IProductOptionsService productOptionsService)
         {
             _logger = logger;
             _productsService = productsService;
+            _productOptionsService = productOptionsService;
         }
 
         /// <summary>
@@ -60,7 +62,7 @@ namespace API.Controllers
                 {
                     return BadRequest();
                 }
-                return product;
+                return Ok(product);
             }
             catch (Exception ex)
             {
@@ -156,21 +158,43 @@ namespace API.Controllers
         /// <returns> A list of product</returns>
         [HttpGet]
         [Route("{id}/options")]
-        public async Task<IEnumerable<ViewProductOption>> GetProductOptions(Guid id)
+        public async Task<ActionResult<IEnumerable<ViewProductOption>>> GetProductOptions(Guid id)
         {
-            return new List<ViewProductOption>();
+            try
+            {
+                return Ok(await _productOptionsService.GetProductOptions(id));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return StatusCode(500, new ApiResponse { Result = 1, Message = ex.Message });
+            }
         }
 
         /// <summary>
         ///  Get product
         /// </summary>
         /// <param name="id"></param>
-        /// <returns> Product with given id</returns>
+        /// <returns> Product option with given id</returns>
         [HttpGet]
         [Route("{id}/options/{optionId}")]
-        public async Task<ViewProduct> GetProductOption(Guid id, Guid optionId)
+        public async Task<ActionResult<ViewProductOption>> GetProductOption(Guid id, Guid optionId)
         {
-            return new ViewProduct();
+            try
+            {
+                var productOption = await _productOptionsService.GetProductOption(id, optionId);
+
+                if (productOption == null)
+                {
+                    return BadRequest();
+                }
+                return Ok(productOption);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return StatusCode(500, new ApiResponse { Result = 1, Message = ex.Message });
+            }
         }
 
         /// <summary>
@@ -179,9 +203,18 @@ namespace API.Controllers
         /// <returns> Product with given id</returns>
         [HttpPost]
         [Route("{id}/options")]
-        public async Task<ViewProductOption> CreateProductOption(Guid id, CreateProductOption createProductOption)
+        public async Task<ActionResult<ViewProductOption>> CreateProductOption(Guid id, CreateProductOption createProductOption)
         {
-            return new ViewProductOption();
+            try
+            {
+                var productOption = await _productOptionsService.CreateProductOption(id, createProductOption);
+                return Ok(productOption);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return StatusCode(500, new ApiResponse { Result = 1, Message = ex.Message });
+            }
         }
 
         /// <summary>
@@ -190,9 +223,30 @@ namespace API.Controllers
         /// <returns> Product with given id</returns>
         [HttpPut]
         [Route("{id}/options/{optionId}")]
-        public async Task<ViewProductOption> UpdateProductOption(Guid id, Guid optionId, UpdateProductOption updateProductOption)
+        public async Task<ActionResult<ViewProductOption>> UpdateProductOption(Guid id, Guid optionId, UpdateProductOption updateProductOption)
         {
-            return new ViewProductOption();
+            try
+            {
+                var productOption = await _productOptionsService.GetProductOption(id, optionId);
+
+                if (productOption == null)
+                {
+                    return NotFound();
+                }
+
+                if (productOption.Id != optionId)
+                {
+                    return BadRequest("Product option id doesn't match with the given id");
+                }
+
+                var updatedProductOption = await _productOptionsService.UpdateProductOption(id, optionId, updateProductOption);
+                return Ok(updatedProductOption);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return StatusCode(500, new ApiResponse { Result = 1, Message = ex.Message });
+            }
         }
 
         /// <summary>
@@ -201,9 +255,26 @@ namespace API.Controllers
         /// <returns> Return success/ failure</returns>
         [HttpDelete]
         [Route("{id}/options/{optionId}")]
-        public async Task<bool> DeleteProductOption(Guid id, Guid optionId)
+        public async Task<ActionResult<bool>> DeleteProductOption(Guid id, Guid optionId)
         {
-            return true;
+            try
+            {
+                var productOption = await _productOptionsService.GetProductOption(id, optionId);
+
+                if (productOption == null)
+                {
+                    return NotFound();
+                }
+
+
+                var result = await _productOptionsService.DeleteProductOption(id, optionId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.Message);
+                return StatusCode(500, new ApiResponse { Result = 1, Message = ex.Message });
+            }
         }
     }
 }
